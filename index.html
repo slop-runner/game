@@ -211,10 +211,15 @@
     <!-- ── RESULT PHASE ─────────────────────────── -->
     <section class="phase" id="phase-result">
 
+      <!-- Rank-up flash banner — shown only on rank change -->
       <div id="result-rankup"></div>
 
-      <div class="result-verdict" id="result-verdict">CLEANED</div>
-      <div class="result-points" id="result-points">+0</div>
+      <!-- Hero: verdict + score + quip -->
+      <div class="result-hero">
+        <span class="result-verdict" id="result-verdict">CLEANED</span>
+        <span class="result-points" id="result-points">+0</span>
+      </div>
+      <span id="result-quip" class="quip-correct"></span>
       <div class="result-meta">
         <span id="result-slop">0% CLEANED</span>
         <span id="result-streak">0 STREAK</span>
@@ -222,19 +227,23 @@
 
       <hr class="result-divider" />
 
+      <!-- Rank readout — no background card, left accent line only -->
       <p class="result-section-label">YOUR RANK</p>
-      <div class="result-rank-card">
+      <div class="result-rank-card" id="result-rank-card">
         <div class="result-rank-row">
-          <div id="result-rank-name" style="font-family:var(--font-display);font-size:32px;letter-spacing:3px">INTERN</div>
-          <div id="result-rank-title" style="font-size:11px;letter-spacing:2px;color:var(--slate)">Intern</div>
+          <div id="result-rank-name">INTERN</div>
+          <div id="result-rank-title">Intern</div>
         </div>
-        <div id="result-rank-desc" style="font-size:11px;line-height:1.5;color:#999;margin-top:8px">—</div>
-        <div class="rank-progress-track"><div class="rank-progress-fill" id="result-rank-progress-fill" style="width:0%"></div></div>
-        <div id="result-next-rank" style="font-size:10px;color:#666;letter-spacing:1px;margin-top:6px">—</div>
+        <div id="result-rank-desc">—</div>
+        <div class="rank-progress-track">
+          <div id="result-rank-progress-fill" style="width:0%"></div>
+        </div>
+        <div id="result-next-rank">—</div>
       </div>
 
       <hr class="result-divider" />
 
+      <!-- Flaw readout -->
       <p class="result-section-label">FLAW IDENTIFIED</p>
       <div class="result-flaw-card">
         <div id="result-flaw-tag">—</div>
@@ -243,22 +252,21 @@
 
       <hr class="result-divider" />
 
+      <!-- Correct cue list -->
       <p class="result-section-label">CORRECT CUES FOR THIS SCENARIO</p>
-      <div id="result-correct-cues">
-        <!-- Populated by game.js -->
-      </div>
+      <div id="result-correct-cues"></div>
 
       <hr class="result-divider" />
 
-      <p class="result-section-label">SESSION</p>
+      <!-- Session stats — two columns, border only -->
       <div class="result-session">
-        <div>
-          <div class="result-session-label">SESSION SCORE</div>
-          <div class="result-session-val" id="result-session-score">0</div>
+        <div class="result-session-col">
+          <span class="result-session-label">SESSION SCORE</span>
+          <span class="result-session-val" id="result-session-score">0</span>
         </div>
-        <div style="text-align:right;">
-          <div class="result-session-label">TOTAL XP</div>
-          <div class="result-session-val" id="result-xp">0</div>
+        <div class="result-session-col">
+          <span class="result-session-label">TOTAL XP</span>
+          <span class="result-session-val" id="result-xp">0</span>
         </div>
       </div>
 

@@ -119,9 +119,10 @@ body::before {
   margin-top: 28px;
   width: 100%;
   max-width: 440px;
-  background: var(--ink);
-  color: var(--white);
+  background: var(--white);
+  color: var(--ink);
   border: var(--border);
+  border-left: 6px solid var(--active-rank-color, var(--slate));
   box-shadow: var(--shadow);
   padding: 20px 24px;
   text-align: left;
@@ -132,16 +133,17 @@ body::before {
   font-size: 36px;
   letter-spacing: 3px;
 }
-#menu-xp { font-size: 13px; color: var(--slate); }
-#menu-rank-title { font-size: 11px; letter-spacing: 2px; color: var(--slate); margin-top: 2px; }
-#menu-rank-desc { font-size: 11px; line-height: 1.5; color: #999; margin-top: 8px; }
+#menu-xp { font-size: 12px; color: var(--ink-muted); font-weight: 700; }
+#menu-rank-title { font-size: 10px; letter-spacing: 3px; color: var(--ink-muted); margin-top: 2px; text-transform: uppercase; }
+#menu-rank-desc { font-size: 12px; line-height: 1.6; color: var(--ink-2); margin-top: 8px; }
 .rank-progress-track {
-  height: 4px;
-  background: #333;
+  height: 5px;
+  background: var(--bg-2);
+  border: 1px solid var(--ink);
   margin-top: 12px;
 }
 .rank-progress-fill { height: 100%; transition: width 600ms ease; }
-#menu-next-rank { font-size: 10px; color: #666; letter-spacing: 1px; margin-top: 6px; }
+#menu-next-rank { font-size: 10px; color: var(--ink-muted); letter-spacing: 1px; margin-top: 6px; }
 
 .menu-actions { display: flex; gap: 12px; margin-top: 24px; }
 .btn-primary {
@@ -451,71 +453,225 @@ body::before {
 #slop-fill { height: 100%; background: var(--green); transition: width 500ms ease, background 500ms; }
 
 /* ── RESULT PHASE ───────────────────────────── */
-#phase-result { display: none; flex-direction: column; align-items: center; padding: 48px 20px; max-width: 640px; margin: 0 auto; }
+/*
+   Design principle: raw terminal readout on cream.
+   No filled dark cards. Everything lives on the bg.
+   Colour = accent lines, tags, and labels only.
+   Energy comes from large type + tight contrast.
+*/
+#phase-result {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 24px 64px;
+  max-width: 640px;
+  margin: 0 auto;
+}
 #phase-result.active { display: flex; }
 
-.result-verdict { font-family: var(--font-display); font-size: clamp(56px, 10vw, 88px); letter-spacing: 6px; line-height: 1; }
-.result-verdict.correct { color: var(--green); }
+/* ── Verdict + score hero ── */
+.result-hero { text-align: center; width: 100%; }
+
+.result-verdict {
+  font-family: var(--font-display);
+  font-size: clamp(72px, 14vw, 110px);
+  letter-spacing: 8px;
+  line-height: 0.9;
+  display: block;
+}
+.result-verdict.correct  { color: var(--green); }
 .result-verdict.incorrect { color: var(--red); }
 
-.result-points { font-family: var(--font-display); font-size: 44px; letter-spacing: 2px; margin-top: 8px; }
+.result-points {
+  font-family: var(--font-display);
+  font-size: 52px;
+  letter-spacing: 3px;
+  display: block;
+  margin-top: 6px;
+}
 .result-points.positive { color: var(--green); }
 .result-points.negative { color: var(--red); }
 
-.result-meta { display: flex; gap: 32px; margin-top: 12px; font-size: 11px; letter-spacing: 2px; color: var(--ink-muted); }
+/* Quip line */
+#result-quip {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 14px;
+  padding: 8px 16px;
+  border-left: 4px solid currentColor;
+  text-align: left;
+  align-self: flex-start;
+  line-height: 1.5;
+  max-width: 480px;
+}
+#result-quip.quip-correct { color: var(--green); }
+#result-quip.quip-close   { color: #0891B2; }
+#result-quip.quip-miss    { color: var(--ink-muted); }
 
-.result-divider { width: 100%; border: none; border-top: 2px solid var(--ink); margin: 24px 0; }
+.result-meta {
+  display: flex;
+  gap: 24px;
+  margin-top: 16px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  align-self: flex-start;
+}
+.result-meta span::before { content: "▸ "; }
 
-.result-section-label { font-size: 10px; letter-spacing: 3px; color: var(--ink-muted); align-self: flex-start; margin-bottom: 10px; }
+/* ── Divider ── */
+.result-divider {
+  width: 100%;
+  border: none;
+  border-top: 2px solid var(--ink);
+  margin: 28px 0 20px;
+}
 
-/* Rank-up banner */
+/* ── Section labels ── */
+.result-section-label {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  align-self: flex-start;
+  margin-bottom: 10px;
+}
+
+/* ── Rank-up banner ── */
 #result-rankup {
   display: none;
   width: 100%;
   padding: 12px 20px;
-  background: var(--ink);
   font-family: var(--font-display);
-  font-size: 20px;
-  letter-spacing: 3px;
+  font-size: 22px;
+  letter-spacing: 4px;
   text-align: center;
-  border: var(--border);
-  margin-bottom: 16px;
-  animation: rankup-pulse 1s ease-in-out 3;
+  border-top: 4px solid currentColor;
+  border-bottom: 4px solid currentColor;
+  margin-bottom: 20px;
+  animation: rankup-flash 0.6s ease-in-out 5;
 }
-@keyframes rankup-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+@keyframes rankup-flash { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-/* Rank card in result */
+/* ── Rank readout ── */
 .result-rank-card {
   width: 100%;
-  background: var(--ink);
-  color: var(--white);
-  padding: 20px;
-  border: var(--border);
-  box-shadow: var(--shadow);
+  padding: 0;
+  border-left: 5px solid var(--slate);  /* overridden inline with rank colour */
+  padding-left: 16px;
+  background: transparent;
 }
-.result-rank-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-#result-rank-name { font-family: var(--font-display); font-size: 32px; letter-spacing: 3px; }
-#result-rank-title { font-size: 11px; letter-spacing: 2px; color: var(--slate); }
-#result-rank-desc { font-size: 11px; line-height: 1.5; color: #999; margin-top: 8px; }
-.rank-progress-track { height: 4px; background: #333; margin-top: 12px; }
-#result-rank-progress-fill { height: 100%; transition: width 800ms ease; }
-#result-next-rank { font-size: 10px; color: #666; letter-spacing: 1px; margin-top: 6px; }
+.result-rank-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+#result-rank-name {
+  font-family: var(--font-display);
+  font-size: 40px;
+  letter-spacing: 4px;
+  line-height: 1;
+}
+#result-rank-title {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+}
+#result-rank-desc {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  margin-top: 6px;
+  max-width: 460px;
+}
+.rank-progress-track {
+  height: 4px;
+  background: var(--bg-2);
+  border: 1px solid var(--ink);
+  margin-top: 12px;
+}
+#result-rank-progress-fill { height: 100%; transition: width 900ms ease; }
+#result-next-rank {
+  font-size: 10px;
+  color: var(--ink-muted);
+  letter-spacing: 1px;
+  margin-top: 5px;
+}
 
-/* Flaw card */
-.result-flaw-card { width: 100%; background: var(--ink); color: var(--white); padding: 20px; border: var(--border); box-shadow: var(--shadow); }
-#result-flaw-tag { font-family: var(--font-display); font-size: 28px; letter-spacing: 2px; color: var(--red); }
-#result-flaw-desc { font-size: 13px; line-height: 1.6; color: var(--slate); margin-top: 8px; }
+/* ── Flaw readout ── */
+.result-flaw-card {
+  width: 100%;
+  padding: 0;
+  border-left: 5px solid var(--red);
+  padding-left: 16px;
+  background: transparent;
+}
+#result-flaw-tag {
+  font-family: var(--font-display);
+  font-size: 32px;
+  letter-spacing: 3px;
+  color: var(--red);
+  line-height: 1;
+}
+#result-flaw-desc {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  margin-top: 8px;
+  max-width: 480px;
+}
 
-#result-correct-cues { width: 100%; display: flex; flex-direction: column; gap: 8px; }
-.result-cue-item { font-size: 13px; padding: 10px 16px; background: var(--bg-2); border: 1px solid var(--ink); line-height: 1.4; }
+/* ── Correct cues ── */
+#result-correct-cues { width: 100%; display: flex; flex-direction: column; gap: 6px; }
+.result-cue-item {
+  font-size: 12px;
+  padding: 8px 14px;
+  background: transparent;
+  border-left: 4px solid var(--green);
+  padding-left: 14px;
+  line-height: 1.4;
+  font-weight: 700;
+  color: var(--ink-2);
+}
 
-/* Session block */
-.result-session { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--bg-2); border: var(--border); }
-.result-session-label { font-size: 11px; letter-spacing: 2px; color: var(--ink-muted); }
-.result-session-val { font-family: var(--font-display); font-size: 28px; letter-spacing: 1px; }
+/* ── Session readout ── */
+.result-session {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-top: 3px solid var(--ink);
+  border-bottom: 3px solid var(--ink);
+  background: transparent;
+}
+.result-session-col {
+  padding: 16px 20px;
+}
+.result-session-col:first-child {
+  border-right: 2px solid var(--ink);
+}
+.result-session-label {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: block;
+}
+.result-session-val {
+  font-family: var(--font-display);
+  font-size: 36px;
+  letter-spacing: 1px;
+  color: var(--ink);
+  display: block;
+}
 
-/* Action buttons */
-.result-actions { display: flex; gap: 12px; margin-top: 32px; width: 100%; }
+/* ── Action buttons ── */
+.result-actions { display: flex; gap: 12px; margin-top: 28px; width: 100%; }
 .btn-action {
   flex: 1;
   background: var(--ink);
@@ -523,13 +679,17 @@ body::before {
   font-family: var(--font-display);
   font-size: 18px;
   letter-spacing: 3px;
-  padding: 14px 20px;
+  padding: 14px 12px;
   border: var(--border);
   box-shadow: var(--shadow-sm);
   transition: var(--transition);
 }
-.btn-action:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 var(--ink); background: var(--active-color); }
-.btn-action.secondary { background: var(--white); color: var(--ink); }
+.btn-action:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--ink);
+  background: var(--active-color);
+}
+.btn-action.secondary { background: var(--bg); color: var(--ink); }
 .btn-action.secondary:hover { background: var(--red); color: var(--white); }
 
 /* ── Global scrollbar ───────────────────────── */

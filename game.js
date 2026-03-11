@@ -2,6 +2,58 @@
 // GAME.JS — Core game loop and UI controller
 // ─────────────────────────────────────────────
 
+// ── Quip bank ────────────────────────────────
+// Three tiers: correct hit / close call / miss
+// Clipped, terminal-voice, no fluff.
+
+const QUIPS = {
+  correct: [
+    "Signal clean. You read it before it finished loading.",
+    "Locked in. That's not luck — that's pattern recognition.",
+    "Diagnosed. Most people would've shipped that.",
+    "Zero noise. You cut straight to the core of it.",
+    "Execution intuition: online.",
+    "Clean. The scenario tried to hide it. You found it.",
+    "Sharp. The kind of call that saves a whole sprint.",
+    "Correct. Write that framework into your muscle memory.",
+    "Lethal clarity. Brief read, clean kill.",
+    "The flaw didn't stand a chance.",
+    "Fast. Accurate. That's the job.",
+    "You've done this before. It shows.",
+  ],
+  close: [
+    "Close. You sniffed the flaw — wrong label, right instinct.",
+    "Almost. You were in the right postcode, wrong building.",
+    "Partial signal. You felt something was wrong. Trust that more.",
+    "In the zone, not quite on the mark. Review the correct cue.",
+    "Close enough to learn from. Study the gap.",
+    "You sensed it. Now learn to name it precisely.",
+    "Near miss. That instinct was real — refine the language.",
+    "Adjacent. Your read was good, the cue was off.",
+    "Right neighbourhood. Wrong door.",
+    "Good instinct. Incomplete diagnosis.",
+  ],
+  miss: [
+    "Slop wins this one. It happens.",
+    "The flaw got through. Study the reveal — it'll click next time.",
+    "Missed. But you read the scenario. That counts.",
+    "Not this time. The pattern is in the feedback — absorb it.",
+    "Clean fail. Better here than in a real brief.",
+    "Scenario: 1. You: 0. For now.",
+    "The flaw was subtle. They always are. That's the point.",
+    "Miss logged. Add it to your pattern library.",
+    "The gap is information. Use it.",
+    "Even experts get this one.",
+  ]
+};
+
+function getQuip(tier) {
+  const pool = QUIPS[tier];
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+// ── Boot ─────────────────────────────────────
+
 document.addEventListener('DOMContentLoaded', () => {
   GameState.load();
   renderMenu();
@@ -34,14 +86,11 @@ function renderMenu() {
   $('menu-rank-title').textContent = rank.title;
   $('menu-rank-desc').textContent = rank.realWorld;
 
-  // Rank progress bar
   $('menu-rank-progress-fill').style.width = `${progress}%`;
   $('menu-rank-progress-fill').style.background = rank.color;
-  if (next) {
-    $('menu-next-rank').textContent = `→ ${next.name} at ${next.minXP.toLocaleString()} XP`;
-  } else {
-    $('menu-next-rank').textContent = 'MAX RANK ACHIEVED';
-  }
+  $('menu-next-rank').textContent = next
+    ? `→ ${next.name} at ${next.minXP.toLocaleString()} XP`
+    : 'MAX RANK ACHIEVED';
 }
 
 // ── How To Play ──────────────────────────────
@@ -151,44 +200,41 @@ function renderCueCards(fw) {
   });
 }
 
+// ── Cue selection — locked once chosen ───────
+
 function toggleCue(card, cueId) {
-  // If already submitted, cues are locked
   if (GameState.submitted) return;
 
-  const idx = GameState.selectedCues.indexOf(cueId);
-  if (idx === -1) {
-    // Select — locked in, cannot deselect
-    GameState.selectedCues.push(cueId);
-    card.classList.add('selected', 'selected-pending');
-    // Flash scenario text
-    $('scenario-text').classList.add('cue-injected');
-    setTimeout(() => $('scenario-text').classList.remove('cue-injected'), 600);
-  }
-  // Once selected, clicking again does nothing (locked)
+  // Already selected — locked, do nothing
+  if (GameState.selectedCues.includes(cueId)) return;
+
+  // Lock it in
+  GameState.selectedCues.push(cueId);
+  card.classList.add('selected-pending');
+
+  // Flash the scenario text
+  $('scenario-text').classList.add('cue-injected');
+  setTimeout(() => $('scenario-text').classList.remove('cue-injected'), 600);
 
   const newSlop = GameState.getSlopMeterValue(GameState.timerSeconds, GameState.selectedCues.length);
   updateSlopMeter(newSlop);
 }
 
-// Reveal correct/wrong cue states after submission
+// Reveal correct (green) / wrong (red) after submission
 function revealCueResults(correctCues) {
-  const deck = $('cue-deck');
-  deck.querySelectorAll('.cue-card').forEach(card => {
+  $('cue-deck').querySelectorAll('.cue-card').forEach(card => {
     const cueId = card.dataset.cueId;
     const wasSelected = GameState.selectedCues.includes(cueId);
     const isCorrect = correctCues.includes(cueId);
 
     card.classList.remove('selected-pending');
+    card.disabled = true;
 
     if (isCorrect) {
-      // Always highlight the correct cue(s) green
       card.classList.add('cue-correct');
     } else if (wasSelected) {
-      // Selected but wrong — show red
       card.classList.add('cue-wrong');
     }
-    // Disable all cards after submission
-    card.disabled = true;
   });
 }
 
@@ -201,9 +247,7 @@ function startTimer() {
   GameState.timerInterval = setInterval(() => {
     GameState.timerSeconds--;
     updateTimerDisplay();
-
-    const slop = GameState.getSlopMeterValue(GameState.timerSeconds, GameState.selectedCues.length);
-    updateSlopMeter(slop);
+    updateSlopMeter(GameState.getSlopMeterValue(GameState.timerSeconds, GameState.selectedCues.length));
 
     if (GameState.timerSeconds <= 0) {
       clearInterval(GameState.timerInterval);
@@ -223,16 +267,16 @@ function updateTimerDisplay() {
   if (t <= 15) {
     el.style.color = '#E63B2E';
     $('timer-bar-fill').style.background = '#E63B2E';
+    el.classList.add('timer-pulse');
   } else if (t <= 30) {
     el.style.color = '#F4A124';
     $('timer-bar-fill').style.background = '#F4A124';
+    el.classList.remove('timer-pulse');
   } else {
     el.style.color = 'var(--active-color)';
     $('timer-bar-fill').style.background = 'var(--active-color)';
+    el.classList.remove('timer-pulse');
   }
-
-  if (t <= 10) el.classList.add('timer-pulse');
-  else el.classList.remove('timer-pulse');
 }
 
 function updateSlopMeter(value) {
@@ -240,9 +284,9 @@ function updateSlopMeter(value) {
   $('slop-fill').style.width = `${value}%`;
   $('slop-value').textContent = `${Math.round(value)}%`;
 
-  if (value >= 70) $('slop-fill').style.background = '#00A878';
+  if (value >= 70)      $('slop-fill').style.background = '#00A878';
   else if (value >= 40) $('slop-fill').style.background = '#F4A124';
-  else $('slop-fill').style.background = '#E63B2E';
+  else                  $('slop-fill').style.background = '#E63B2E';
 }
 
 function autoSubmit() { submitVerdict(true); }
@@ -264,7 +308,7 @@ function submitVerdict(timedOut = false) {
     verdictText
   );
 
-  // Reveal correct/wrong cues visually before navigating away
+  // Reveal cue colours — short delay then navigate to result
   revealCueResults(evaluation.correctCues);
 
   const points = GameState.calculateScore(
@@ -272,11 +316,9 @@ function submitVerdict(timedOut = false) {
     GameState.timerSeconds,
     evaluation.correctCueSelected
   );
-
   GameState.applyScore(points);
   GameState.save();
 
-  // Short delay so player can see the cue reveal
   setTimeout(() => renderResultPhase(evaluation, points, timedOut), 1200);
 }
 
@@ -286,25 +328,70 @@ function renderResultPhase(evaluation, points, timedOut) {
   setPhase('result');
 
   const isCorrect = evaluation.isCorrect;
-  const prevXP = GameState.xp - (points > 0 ? points : 0);
-  const currentRank = getRank(GameState.xp);
-  const prevRank = getRank(prevXP);
-  const rankUp = currentRank.name !== prevRank.name && points > 0;
 
+  // ── Verdict + score
   $('result-verdict').textContent = timedOut ? 'TIME OUT' : (isCorrect ? 'CLEANED' : 'MISSED');
   $('result-verdict').className = `result-verdict ${isCorrect ? 'correct' : 'incorrect'}`;
 
   $('result-points').textContent = points >= 0 ? `+${points.toLocaleString()}` : points.toLocaleString();
   $('result-points').className = `result-points ${points >= 0 ? 'positive' : 'negative'}`;
 
+  // ── Quip — three tiers
+  const quipEl = $('result-quip');
+  let quipTier;
+  if (isCorrect && evaluation.correctCueSelected) {
+    // Perfect: right verdict AND right cue
+    quipTier = 'correct';
+  } else if (isCorrect || evaluation.correctCueSelected) {
+    // Partial: one of the two was right
+    quipTier = 'close';
+  } else {
+    quipTier = 'miss';
+  }
+  quipEl.textContent = getQuip(quipTier);
+  quipEl.className = `quip-${quipTier}`;
+
+  // ── Meta stats
   $('result-slop').textContent = `${Math.round(GameState.slopMeter)}% CLEANED`;
   $('result-streak').textContent = GameState.streak > 0 ? `${GameState.streak} STREAK` : 'STREAK BROKEN';
 
-  // Flaw reveal
+  // ── Rank card
+  const prevXP = GameState.xp - (points > 0 ? points : 0);
+  const currentRank = getRank(GameState.xp);
+  const prevRank = getRank(prevXP);
+  const rankUp = currentRank.name !== prevRank.name && points > 0;
+
+  $('result-rank-name').textContent = currentRank.name;
+  $('result-rank-name').style.color = currentRank.color;
+  $('result-rank-title').textContent = currentRank.title;
+  $('result-rank-desc').textContent = currentRank.realWorld;
+  // Accent border colour matches rank
+  $('result-rank-card').style.borderLeftColor = currentRank.color;
+
+  const progress = getRankProgress(GameState.xp);
+  $('result-rank-progress-fill').style.width = `${progress}%`;
+  $('result-rank-progress-fill').style.background = currentRank.color;
+
+  const next = getNextRank(GameState.xp);
+  $('result-next-rank').textContent = next
+    ? `${GameState.xp.toLocaleString()} / ${next.minXP.toLocaleString()} XP → ${next.name}`
+    : `${GameState.xp.toLocaleString()} XP — MAX RANK`;
+
+  // ── Rank-up banner
+  const rankUpEl = $('result-rankup');
+  if (rankUp) {
+    rankUpEl.style.display = 'block';
+    rankUpEl.style.color = currentRank.color;
+    rankUpEl.textContent = `⬆ RANK UP — YOU ARE NOW ${currentRank.name}`;
+  } else {
+    rankUpEl.style.display = 'none';
+  }
+
+  // ── Flaw reveal
   $('result-flaw-tag').textContent = evaluation.correctFlaw;
   $('result-flaw-desc').textContent = evaluation.explanation;
 
-  // Correct cues list
+  // ── Correct cue list
   const cueList = $('result-correct-cues');
   cueList.innerHTML = '';
   const fw = FRAMEWORKS[GameState.currentDomain];
@@ -318,32 +405,7 @@ function renderResultPhase(evaluation, points, timedOut) {
     }
   });
 
-  // Rank display
-  $('result-rank-name').textContent = currentRank.name;
-  $('result-rank-name').style.color = currentRank.color;
-  $('result-rank-title').textContent = currentRank.title;
-  $('result-rank-desc').textContent = currentRank.realWorld;
-
-  const progress = getRankProgress(GameState.xp);
-  $('result-rank-progress-fill').style.width = `${progress}%`;
-  $('result-rank-progress-fill').style.background = currentRank.color;
-
-  const next = getNextRank(GameState.xp);
-  $('result-next-rank').textContent = next
-    ? `${GameState.xp.toLocaleString()} / ${next.minXP.toLocaleString()} XP → ${next.name}`
-    : `${GameState.xp.toLocaleString()} XP — MAX RANK`;
-
-  // Rank-up banner
-  const rankUpEl = $('result-rankup');
-  if (rankUp) {
-    rankUpEl.style.display = 'block';
-    rankUpEl.textContent = `⬆ RANK UP — YOU ARE NOW ${currentRank.name}`;
-    rankUpEl.style.color = currentRank.color;
-  } else {
-    rankUpEl.style.display = 'none';
-  }
-
-  // Session score
+  // ── Session stats
   $('result-session-score').textContent = GameState.sessionScore.toLocaleString();
   $('result-xp').textContent = `${GameState.xp.toLocaleString()} XP`;
 
@@ -360,15 +422,9 @@ function updateHUD() {
   $('hud-streak').textContent = `×${GameState.streak}`;
 }
 
-// ── Button Handlers ───────────────────────────
+// ── Nav handlers ─────────────────────────────
 
-function onStartGame() { showDomainSelect(); }
-
-function onPlayAgain() {
-  if (GameState.currentDomain) startRound(GameState.currentDomain);
-  else showDomainSelect();
-}
-
+function onStartGame()    { showDomainSelect(); }
+function onPlayAgain()    { startRound(GameState.currentDomain || 'design'); }
 function onChangeDomain() { showDomainSelect(); }
-
-function onBackToMenu() { renderMenu(); }
+function onBackToMenu()   { renderMenu(); }
