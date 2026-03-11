@@ -108,6 +108,128 @@ body::before {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ── HOW TO PLAY PHASE ──────────────────────── */
+#phase-howto {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px 20px;
+  max-width: 680px;
+  margin: 0 auto;
+}
+#phase-howto.active { display: flex; }
+
+.howto-title {
+  font-family: var(--font-display);
+  font-size: 56px;
+  letter-spacing: 4px;
+  align-self: flex-start;
+  margin-bottom: 8px;
+}
+.howto-subtitle {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--ink-muted);
+  align-self: flex-start;
+  margin-bottom: 36px;
+}
+
+.howto-steps {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.howto-step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 0;
+  border: var(--border);
+  border-bottom: none;
+  background: var(--white);
+}
+.howto-step:last-child { border-bottom: var(--border); }
+
+.howto-step-num {
+  font-family: var(--font-display);
+  font-size: 36px;
+  letter-spacing: 1px;
+  color: var(--white);
+  background: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: var(--border);
+  padding: 16px 0;
+}
+.howto-step-body {
+  padding: 16px 20px;
+}
+.howto-step-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 4px;
+  color: var(--ink);
+}
+.howto-step-desc {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-2);
+}
+.howto-step-accent { color: var(--red); font-weight: 700; }
+
+.howto-frameworks {
+  width: 100%;
+  margin-top: 28px;
+}
+.howto-fw-label {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--ink-muted);
+  margin-bottom: 12px;
+}
+.howto-fw-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.howto-fw-chip {
+  border: var(--border);
+  padding: 10px 6px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.howto-scoring {
+  width: 100%;
+  margin-top: 24px;
+  border: var(--border);
+  background: var(--ink);
+  color: var(--white);
+  padding: 20px;
+}
+.howto-scoring-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+  color: var(--red);
+}
+.howto-score-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid #333;
+}
+.howto-score-row:last-child { border-bottom: none; }
+.howto-score-pts { color: #00A878; font-weight: 700; }
+.howto-score-pts.neg { color: var(--red); }
+
 /* ── MENU PHASE ─────────────────────────────── */
 #phase-menu {
   display: none;
@@ -532,10 +654,10 @@ body::before {
 .cue-card.selected {
   background: var(--ink);
   color: var(--white);
-  border-color: var(--fw-color);
-  box-shadow: 3px 3px 0 var(--fw-color);
+  border-color: #00A878;
+  box-shadow: 3px 3px 0 #00A878;
 }
-.cue-card.selected .cue-id { color: var(--fw-color); }
+.cue-card.selected .cue-id { color: #00A878; }
 .cue-card.selected .cue-flags { color: var(--slate); }
 
 .cue-id {

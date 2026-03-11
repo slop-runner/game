@@ -1,14 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Slop Runner — Build expert intuition by auditing AI-generated scenarios under pressure." />
+  <meta name="description"
+    content="Slop Runner — Build expert intuition by auditing AI-generated scenarios under pressure." />
   <title>SLOP RUNNER</title>
   <link rel="stylesheet" href="style.css" />
   <!-- Favicon inline SVG -->
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231A1A1A'/><text x='4' y='24' font-size='22' font-family='monospace' fill='%23E63B2E'>S</text></svg>" />
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231A1A1A'/><text x='4' y='24' font-size='22' font-family='monospace' fill='%23E63B2E'>S</text></svg>" />
 </head>
+
 <body>
 
   <!-- ── HUD ──────────────────────────────────── -->
@@ -45,7 +49,89 @@
         </div>
       </div>
       <button class="btn-primary" onclick="onStartGame()">ENTER THE ARENA</button>
+      <button class="btn-back" style="margin-top:12px" onclick="showHowToPlay()">HOW TO PLAY →</button>
       <p class="menu-hint">SELECT A DOMAIN · AUDIT THE SCENARIO · SUBMIT YOUR VERDICT</p>
+    </section>
+
+    <!-- ── HOW TO PLAY PHASE ─────────────────────── -->
+    <section class="phase" id="phase-howto">
+      <h2 class="howto-title">HOW TO PLAY</h2>
+      <p class="howto-subtitle">EXPERTISE SIMULATOR — READ BEFORE YOUR FIRST ROUND</p>
+
+      <div class="howto-steps">
+        <div class="howto-step">
+          <div class="howto-step-num" style="background:#E63B2E">1</div>
+          <div class="howto-step-body">
+            <div class="howto-step-title">CHOOSE A DOMAIN</div>
+            <div class="howto-step-desc">Select one of five thinking frameworks — Design, Business, Market, User, or
+              Project. Each domain tests a different type of expert intuition. Your mastery per domain is tracked
+              separately.</div>
+          </div>
+        </div>
+        <div class="howto-step">
+          <div class="howto-step-num" style="background:#1A6BFF">2</div>
+          <div class="howto-step-body">
+            <div class="howto-step-title">READ THE SCENARIO</div>
+            <div class="howto-step-desc">A realistic business or product brief drops in. It sounds plausible — but it
+              contains <span class="howto-step-accent">exactly one embedded flaw</span>. Your job is to find it. The
+              <span class="howto-step-accent">90-second timer</span> starts immediately.
+            </div>
+          </div>
+        </div>
+        <div class="howto-step">
+          <div class="howto-step-num" style="background:#00A878">3</div>
+          <div class="howto-step-body">
+            <div class="howto-step-title">INJECT MENTAL CUES</div>
+            <div class="howto-step-desc">The <span class="howto-step-accent">Injection Deck</span> on the right contains
+              Mental Cue cards. Each cue names a diagnostic question or pattern. <span class="howto-step-accent">Click
+                cues that match what you're seeing</span> in the scenario — selected cues turn green. You can select
+              multiple.</div>
+          </div>
+        </div>
+        <div class="howto-step">
+          <div class="howto-step-num" style="background:#9B5DE5">4</div>
+          <div class="howto-step-body">
+            <div class="howto-step-title">SUBMIT YOUR VERDICT</div>
+            <div class="howto-step-desc">Write a short verdict in the text box — name the flaw and state which principle
+              exposes it. Then hit <span class="howto-step-accent">SUBMIT VERDICT</span>. Speed matters: the more time
+              remaining, the higher your bonus.</div>
+          </div>
+        </div>
+        <div class="howto-step">
+          <div class="howto-step-num" style="background:#F4A124">5</div>
+          <div class="howto-step-body">
+            <div class="howto-step-title">SEE THE RESULT</div>
+            <div class="howto-step-desc">The real flaw is revealed with a full explanation. You earn XP, build streaks,
+              and track mastery per domain. <span class="howto-step-accent">Play again</span> to face a different
+              scenario — scenarios are AI-generated so the pool is infinite.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="howto-frameworks">
+        <p class="howto-fw-label">THE FIVE DOMAINS</p>
+        <div class="howto-fw-grid">
+          <div class="howto-fw-chip" style="border-color:#E63B2E; color:#E63B2E">DESIGN</div>
+          <div class="howto-fw-chip" style="border-color:#1A6BFF; color:#1A6BFF">BUSINESS</div>
+          <div class="howto-fw-chip" style="border-color:#00A878; color:#00A878">MARKET</div>
+          <div class="howto-fw-chip" style="border-color:#9B5DE5; color:#9B5DE5">USER</div>
+          <div class="howto-fw-chip" style="border-color:#F4A124; color:#F4A124">PROJECT</div>
+        </div>
+      </div>
+
+      <div class="howto-scoring">
+        <div class="howto-scoring-title">SCORING</div>
+        <div class="howto-score-row"><span>Correct flaw identified</span><span class="howto-score-pts">+500</span></div>
+        <div class="howto-score-row"><span>Correct cue selected</span><span class="howto-score-pts">+200</span></div>
+        <div class="howto-score-row"><span>Speed bonus (per second remaining)</span><span
+            class="howto-score-pts">+10/s</span></div>
+        <div class="howto-score-row"><span>3+ correct streak multiplier</span><span class="howto-score-pts">×1.5</span>
+        </div>
+        <div class="howto-score-row"><span>Wrong submission</span><span class="howto-score-pts neg">−150</span></div>
+      </div>
+
+      <button class="btn-primary" style="margin-top:32px" onclick="showDomainSelect()">START PLAYING</button>
+      <button class="btn-back" onclick="onBackToMenu()">← BACK TO MENU</button>
     </section>
 
     <!-- ── DOMAIN SELECT PHASE ─────────────────── -->
@@ -95,11 +181,8 @@
 
           <div id="verdict-area">
             <p class="verdict-label">YOUR VERDICT — WHAT IS THE CORE FLAW?</p>
-            <textarea
-              id="verdict-input"
-              placeholder="State the flaw you identified and which principle exposes it..."
-              maxlength="400"
-            ></textarea>
+            <textarea id="verdict-input" placeholder="State the flaw you identified and which principle exposes it..."
+              maxlength="400"></textarea>
             <button id="submit-btn" onclick="submitVerdict()">SUBMIT VERDICT</button>
           </div>
         </div>
@@ -183,4 +266,5 @@
   <script src="game.js"></script>
 
 </body>
+
 </html>

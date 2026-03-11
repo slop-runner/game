@@ -312,6 +312,8 @@ function updateHUDXP() {
 
 function onStartGame() { showDomainSelect(); }
 
+function showHowToPlay() { setPhase('howto'); }
+
 function onPlayAgain() {
   if (GameState.currentDomain) {
     startRound(GameState.currentDomain);
