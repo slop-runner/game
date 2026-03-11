@@ -21,6 +21,7 @@ const GameState = {
   timerSeconds: SCORING.ROUND_DURATION,
   timerInterval: null,
   slopMeter: 100,
+  submitted: false,
   phase: 'menu', // menu | domain | loading | playing | result | session-end
 
   domainMastery: {
@@ -43,6 +44,7 @@ const GameState = {
     this.selectedCues = [];
     this.timerSeconds = SCORING.ROUND_DURATION;
     this.slopMeter = 100;
+    this.submitted = false;
     clearInterval(this.timerInterval);
   },
 

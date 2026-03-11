@@ -1,18 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description"
-    content="Slop Runner — Build expert intuition by auditing AI-generated scenarios under pressure." />
+  <meta name="description" content="Slop Runner — Build expert intuition by auditing AI-generated scenarios under pressure." />
   <title>SLOP RUNNER</title>
   <link rel="stylesheet" href="style.css" />
   <!-- Favicon inline SVG -->
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231A1A1A'/><text x='4' y='24' font-size='22' font-family='monospace' fill='%23E63B2E'>S</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231A1A1A'/><text x='4' y='24' font-size='22' font-family='monospace' fill='%23E63B2E'>S</text></svg>" />
 </head>
-
 <body>
 
   <!-- ── HUD ──────────────────────────────────── -->
@@ -38,18 +34,20 @@
         AI generates flawed scenarios. You audit, diagnose, and clean them.
         Speed and accuracy are both scored.
       </p>
-      <div class="menu-stats">
-        <div>
-          <div class="menu-stat-label">RANK</div>
-          <div class="menu-stat-value" id="menu-rank">NOVICE</div>
+      <div class="menu-rank-card">
+        <div class="menu-rank-row">
+          <div id="menu-rank" style="font-family:var(--font-display);font-size:36px;letter-spacing:3px;color:#8A9BB0">INTERN</div>
+          <div id="menu-xp" style="font-size:13px;color:var(--slate)">0 XP</div>
         </div>
-        <div>
-          <div class="menu-stat-label">TOTAL XP</div>
-          <div class="menu-stat-value" id="menu-xp">0</div>
-        </div>
+        <div id="menu-rank-title" style="font-size:11px;letter-spacing:2px;color:var(--slate);margin-top:2px">Intern</div>
+        <div id="menu-rank-desc" style="font-size:11px;line-height:1.5;color:#999;margin-top:8px">Just starting out. Pattern recognition is forming.</div>
+        <div class="rank-progress-track"><div class="rank-progress-fill" id="menu-rank-progress-fill" style="width:0%;background:#8A9BB0"></div></div>
+        <div id="menu-next-rank" style="font-size:10px;color:#666;letter-spacing:1px;margin-top:6px">→ JUNIOR at 300 XP</div>
       </div>
-      <button class="btn-primary" onclick="onStartGame()">ENTER THE ARENA</button>
-      <button class="btn-back" style="margin-top:12px" onclick="showHowToPlay()">HOW TO PLAY →</button>
+      <div class="menu-actions">
+        <button class="btn-primary" onclick="onStartGame()">ENTER THE ARENA</button>
+        <button class="btn-secondary" onclick="showHowToPlay()">HOW TO PLAY</button>
+      </div>
       <p class="menu-hint">SELECT A DOMAIN · AUDIT THE SCENARIO · SUBMIT YOUR VERDICT</p>
     </section>
 
@@ -63,48 +61,46 @@
           <div class="howto-step-num" style="background:#E63B2E">1</div>
           <div class="howto-step-body">
             <div class="howto-step-title">CHOOSE A DOMAIN</div>
-            <div class="howto-step-desc">Select one of five thinking frameworks — Design, Business, Market, User, or
-              Project. Each domain tests a different type of expert intuition. Your mastery per domain is tracked
-              separately.</div>
+            <div class="howto-step-desc">Select one of five thinking frameworks — Design, Business, Market, User, or Project. Each domain tests a different type of expert intuition. Your mastery per domain is tracked separately.</div>
           </div>
         </div>
         <div class="howto-step">
           <div class="howto-step-num" style="background:#1A6BFF">2</div>
           <div class="howto-step-body">
             <div class="howto-step-title">READ THE SCENARIO</div>
-            <div class="howto-step-desc">A realistic business or product brief drops in. It sounds plausible — but it
-              contains <span class="howto-step-accent">exactly one embedded flaw</span>. Your job is to find it. The
-              <span class="howto-step-accent">90-second timer</span> starts immediately.
-            </div>
+            <div class="howto-step-desc">A realistic business or product brief drops in. It sounds plausible — but it contains <span class="howto-step-accent">exactly one embedded flaw</span>. Your job is to find it. The <span class="howto-step-accent">90-second timer</span> starts immediately.</div>
           </div>
         </div>
         <div class="howto-step">
           <div class="howto-step-num" style="background:#00A878">3</div>
           <div class="howto-step-body">
             <div class="howto-step-title">INJECT MENTAL CUES</div>
-            <div class="howto-step-desc">The <span class="howto-step-accent">Injection Deck</span> on the right contains
-              Mental Cue cards. Each cue names a diagnostic question or pattern. <span class="howto-step-accent">Click
-                cues that match what you're seeing</span> in the scenario — selected cues turn green. You can select
-              multiple.</div>
+            <div class="howto-step-desc">The <span class="howto-step-accent">Injection Deck</span> contains Mental Cue cards. Click cues that match what you're seeing. <span class="howto-step-accent">Once selected, a cue is locked — you cannot deselect it.</span> On submission, green = correct, red = wrong selection. You can select multiple cues.</div>
           </div>
         </div>
         <div class="howto-step">
           <div class="howto-step-num" style="background:#9B5DE5">4</div>
           <div class="howto-step-body">
             <div class="howto-step-title">SUBMIT YOUR VERDICT</div>
-            <div class="howto-step-desc">Write a short verdict in the text box — name the flaw and state which principle
-              exposes it. Then hit <span class="howto-step-accent">SUBMIT VERDICT</span>. Speed matters: the more time
-              remaining, the higher your bonus.</div>
+            <div class="howto-step-desc">Write a short verdict in the text box — name the flaw and state which principle exposes it. Then hit <span class="howto-step-accent">SUBMIT VERDICT</span>. Speed matters: the more time remaining, the higher your bonus.</div>
           </div>
         </div>
         <div class="howto-step">
           <div class="howto-step-num" style="background:#F4A124">5</div>
           <div class="howto-step-body">
             <div class="howto-step-title">SEE THE RESULT</div>
-            <div class="howto-step-desc">The real flaw is revealed with a full explanation. You earn XP, build streaks,
-              and track mastery per domain. <span class="howto-step-accent">Play again</span> to face a different
-              scenario — scenarios are AI-generated so the pool is infinite.</div>
+            <div class="howto-step-desc">The real flaw is revealed with a full explanation. You earn XP, build streaks, and track mastery per domain. <span class="howto-step-accent">Play again</span> to face a different scenario — scenarios are AI-generated so the pool is infinite.</div>
           </div>
+        </div>
+      </div>
+
+      <div class="howto-cue-demo">
+        <p class="howto-cue-label">CUE CARD STATES — WHAT EACH COLOUR MEANS</p>
+        <div class="howto-cue-states">
+          <div class="demo-cue neutral">UNSELECTED</div>
+          <div class="demo-cue pending">▣ LOCKED IN</div>
+          <div class="demo-cue correct">✓ CORRECT</div>
+          <div class="demo-cue wrong">✗ WRONG PICK</div>
         </div>
       </div>
 
@@ -123,10 +119,8 @@
         <div class="howto-scoring-title">SCORING</div>
         <div class="howto-score-row"><span>Correct flaw identified</span><span class="howto-score-pts">+500</span></div>
         <div class="howto-score-row"><span>Correct cue selected</span><span class="howto-score-pts">+200</span></div>
-        <div class="howto-score-row"><span>Speed bonus (per second remaining)</span><span
-            class="howto-score-pts">+10/s</span></div>
-        <div class="howto-score-row"><span>3+ correct streak multiplier</span><span class="howto-score-pts">×1.5</span>
-        </div>
+        <div class="howto-score-row"><span>Speed bonus (per second remaining)</span><span class="howto-score-pts">+10/s</span></div>
+        <div class="howto-score-row"><span>3+ correct streak multiplier</span><span class="howto-score-pts">×1.5</span></div>
         <div class="howto-score-row"><span>Wrong submission</span><span class="howto-score-pts neg">−150</span></div>
       </div>
 
@@ -181,8 +175,11 @@
 
           <div id="verdict-area">
             <p class="verdict-label">YOUR VERDICT — WHAT IS THE CORE FLAW?</p>
-            <textarea id="verdict-input" placeholder="State the flaw you identified and which principle exposes it..."
-              maxlength="400"></textarea>
+            <textarea
+              id="verdict-input"
+              placeholder="State the flaw you identified and which principle exposes it..."
+              maxlength="400"
+            ></textarea>
             <button id="submit-btn" onclick="submitVerdict()">SUBMIT VERDICT</button>
           </div>
         </div>
@@ -192,6 +189,7 @@
           <div id="toolkit-header">
             <p class="toolkit-eyebrow">INJECTION DECK</p>
             <p class="toolkit-title">MENTAL CUES</p>
+            <p class="toolkit-hint">SELECT — LOCKED ONCE CHOSEN · REVEALED ON SUBMIT</p>
           </div>
           <div id="cue-deck">
             <!-- Populated by game.js -->
@@ -213,11 +211,26 @@
     <!-- ── RESULT PHASE ─────────────────────────── -->
     <section class="phase" id="phase-result">
 
+      <div id="result-rankup"></div>
+
       <div class="result-verdict" id="result-verdict">CLEANED</div>
       <div class="result-points" id="result-points">+0</div>
       <div class="result-meta">
         <span id="result-slop">0% CLEANED</span>
         <span id="result-streak">0 STREAK</span>
+      </div>
+
+      <hr class="result-divider" />
+
+      <p class="result-section-label">YOUR RANK</p>
+      <div class="result-rank-card">
+        <div class="result-rank-row">
+          <div id="result-rank-name" style="font-family:var(--font-display);font-size:32px;letter-spacing:3px">INTERN</div>
+          <div id="result-rank-title" style="font-size:11px;letter-spacing:2px;color:var(--slate)">Intern</div>
+        </div>
+        <div id="result-rank-desc" style="font-size:11px;line-height:1.5;color:#999;margin-top:8px">—</div>
+        <div class="rank-progress-track"><div class="rank-progress-fill" id="result-rank-progress-fill" style="width:0%"></div></div>
+        <div id="result-next-rank" style="font-size:10px;color:#666;letter-spacing:1px;margin-top:6px">—</div>
       </div>
 
       <hr class="result-divider" />
@@ -266,5 +279,4 @@
   <script src="game.js"></script>
 
 </body>
-
 </html>

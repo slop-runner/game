@@ -22,13 +22,31 @@ function setPhase(phase) {
 
 function renderMenu() {
   setPhase('menu');
-  updateHUDXP();
+  updateHUD();
 
   const rank = getRank(GameState.xp);
+  const next = getNextRank(GameState.xp);
+  const progress = getRankProgress(GameState.xp);
+
   $('menu-rank').textContent = rank.name;
   $('menu-rank').style.color = rank.color;
   $('menu-xp').textContent = `${GameState.xp.toLocaleString()} XP`;
+  $('menu-rank-title').textContent = rank.title;
+  $('menu-rank-desc').textContent = rank.realWorld;
+
+  // Rank progress bar
+  $('menu-rank-progress-fill').style.width = `${progress}%`;
+  $('menu-rank-progress-fill').style.background = rank.color;
+  if (next) {
+    $('menu-next-rank').textContent = `→ ${next.name} at ${next.minXP.toLocaleString()} XP`;
+  } else {
+    $('menu-next-rank').textContent = 'MAX RANK ACHIEVED';
+  }
 }
+
+// ── How To Play ──────────────────────────────
+
+function showHowToPlay() { setPhase('howto'); }
 
 // ── Domain Select Phase ──────────────────────
 
@@ -49,7 +67,7 @@ function showDomainSelect() {
       <span class="domain-name">${fw.fullName}</span>
       <span class="domain-desc">${fw.description}</span>
       <div class="domain-mastery">
-        <div class="mastery-bar" style="width:${mastery}%"></div>
+        <div class="mastery-bar" style="width:${mastery}%; background:${fw.color}"></div>
       </div>
       <span class="domain-mastery-label">${mastery}% mastery</span>
     `;
@@ -75,7 +93,6 @@ async function startRound(domainId) {
     renderPlayPhase(scenario, fw);
   } catch (err) {
     console.error('Failed to load scenario:', err);
-    alert('Failed to load scenario. Check your connection.');
     setPhase('domain');
   }
 }
@@ -85,41 +102,33 @@ async function startRound(domainId) {
 function renderPlayPhase(scenario, fw) {
   setPhase('playing');
 
-  // Set domain colour context
   document.documentElement.style.setProperty('--active-color', fw.color);
   document.documentElement.style.setProperty('--active-accent', fw.accent);
 
-  // Domain badge
   $('play-domain-badge').textContent = fw.label;
   $('play-domain-badge').style.background = fw.color;
 
-  // Scenario text — animate words in
+  // Animate scenario text word by word
   const scenarioEl = $('scenario-text');
   scenarioEl.textContent = '';
-  const words = scenario.text.split(' ');
-  words.forEach((word, i) => {
+  scenario.text.split(' ').forEach((word, i) => {
     const span = document.createElement('span');
     span.textContent = word + ' ';
-    span.style.animationDelay = `${i * 0.03}s`;
+    span.style.animationDelay = `${i * 0.025}s`;
     span.className = 'word-reveal';
     scenarioEl.appendChild(span);
   });
 
-  // Fallback notice
   $('fallback-notice').style.display = scenario.isFallback ? 'block' : 'none';
 
-  // Render cue cards
   renderCueCards(fw);
 
-  // Reset verdict
   $('verdict-input').value = '';
+  $('verdict-input').disabled = false;
   $('submit-btn').disabled = false;
   $('submit-btn').textContent = 'SUBMIT VERDICT';
 
-  // Slop meter
   updateSlopMeter(100);
-
-  // Start timer
   startTimer();
 }
 
@@ -143,20 +152,44 @@ function renderCueCards(fw) {
 }
 
 function toggleCue(card, cueId) {
+  // If already submitted, cues are locked
+  if (GameState.submitted) return;
+
   const idx = GameState.selectedCues.indexOf(cueId);
   if (idx === -1) {
+    // Select — locked in, cannot deselect
     GameState.selectedCues.push(cueId);
-    card.classList.add('selected');
-    // Flash the scenario text to show injection
+    card.classList.add('selected', 'selected-pending');
+    // Flash scenario text
     $('scenario-text').classList.add('cue-injected');
     setTimeout(() => $('scenario-text').classList.remove('cue-injected'), 600);
-  } else {
-    GameState.selectedCues.splice(idx, 1);
-    card.classList.remove('selected');
   }
-  // Update slop meter based on cues used
+  // Once selected, clicking again does nothing (locked)
+
   const newSlop = GameState.getSlopMeterValue(GameState.timerSeconds, GameState.selectedCues.length);
   updateSlopMeter(newSlop);
+}
+
+// Reveal correct/wrong cue states after submission
+function revealCueResults(correctCues) {
+  const deck = $('cue-deck');
+  deck.querySelectorAll('.cue-card').forEach(card => {
+    const cueId = card.dataset.cueId;
+    const wasSelected = GameState.selectedCues.includes(cueId);
+    const isCorrect = correctCues.includes(cueId);
+
+    card.classList.remove('selected-pending');
+
+    if (isCorrect) {
+      // Always highlight the correct cue(s) green
+      card.classList.add('cue-correct');
+    } else if (wasSelected) {
+      // Selected but wrong — show red
+      card.classList.add('cue-wrong');
+    }
+    // Disable all cards after submission
+    card.disabled = true;
+  });
 }
 
 // ── Timer ────────────────────────────────────
@@ -169,7 +202,6 @@ function startTimer() {
     GameState.timerSeconds--;
     updateTimerDisplay();
 
-    // Update slop meter as time passes
     const slop = GameState.getSlopMeterValue(GameState.timerSeconds, GameState.selectedCues.length);
     updateSlopMeter(slop);
 
@@ -188,7 +220,6 @@ function updateTimerDisplay() {
   const pct = (t / SCORING.ROUND_DURATION) * 100;
   $('timer-bar-fill').style.width = `${pct}%`;
 
-  // Colour shifts as time runs out
   if (t <= 15) {
     el.style.color = '#E63B2E';
     $('timer-bar-fill').style.background = '#E63B2E';
@@ -200,12 +231,8 @@ function updateTimerDisplay() {
     $('timer-bar-fill').style.background = 'var(--active-color)';
   }
 
-  // Pulse when low
-  if (t <= 10) {
-    el.classList.add('timer-pulse');
-  } else {
-    el.classList.remove('timer-pulse');
-  }
+  if (t <= 10) el.classList.add('timer-pulse');
+  else el.classList.remove('timer-pulse');
 }
 
 function updateSlopMeter(value) {
@@ -213,25 +240,22 @@ function updateSlopMeter(value) {
   $('slop-fill').style.width = `${value}%`;
   $('slop-value').textContent = `${Math.round(value)}%`;
 
-  // Colour the meter
-  if (value >= 70) {
-    $('slop-fill').style.background = '#00A878';
-  } else if (value >= 40) {
-    $('slop-fill').style.background = '#F4A124';
-  } else {
-    $('slop-fill').style.background = '#E63B2E';
-  }
+  if (value >= 70) $('slop-fill').style.background = '#00A878';
+  else if (value >= 40) $('slop-fill').style.background = '#F4A124';
+  else $('slop-fill').style.background = '#E63B2E';
 }
 
-function autoSubmit() {
-  submitVerdict(true);
-}
+function autoSubmit() { submitVerdict(true); }
 
 // ── Submission ───────────────────────────────
 
 function submitVerdict(timedOut = false) {
+  if (GameState.submitted) return;
+  GameState.submitted = true;
+
   clearInterval(GameState.timerInterval);
   $('submit-btn').disabled = true;
+  $('verdict-input').disabled = true;
 
   const verdictText = $('verdict-input').value.trim();
   const evaluation = evaluateSubmission(
@@ -239,6 +263,9 @@ function submitVerdict(timedOut = false) {
     GameState.selectedCues,
     verdictText
   );
+
+  // Reveal correct/wrong cues visually before navigating away
+  revealCueResults(evaluation.correctCues);
 
   const points = GameState.calculateScore(
     evaluation.isCorrect,
@@ -249,7 +276,8 @@ function submitVerdict(timedOut = false) {
   GameState.applyScore(points);
   GameState.save();
 
-  renderResultPhase(evaluation, points, timedOut);
+  // Short delay so player can see the cue reveal
+  setTimeout(() => renderResultPhase(evaluation, points, timedOut), 1200);
 }
 
 // ── Result Phase ─────────────────────────────
@@ -258,26 +286,25 @@ function renderResultPhase(evaluation, points, timedOut) {
   setPhase('result');
 
   const isCorrect = evaluation.isCorrect;
+  const prevXP = GameState.xp - (points > 0 ? points : 0);
+  const currentRank = getRank(GameState.xp);
+  const prevRank = getRank(prevXP);
+  const rankUp = currentRank.name !== prevRank.name && points > 0;
 
-  // Result header
   $('result-verdict').textContent = timedOut ? 'TIME OUT' : (isCorrect ? 'CLEANED' : 'MISSED');
   $('result-verdict').className = `result-verdict ${isCorrect ? 'correct' : 'incorrect'}`;
 
-  // Points
   $('result-points').textContent = points >= 0 ? `+${points.toLocaleString()}` : points.toLocaleString();
   $('result-points').className = `result-points ${points >= 0 ? 'positive' : 'negative'}`;
 
-  // Slop meter final
   $('result-slop').textContent = `${Math.round(GameState.slopMeter)}% CLEANED`;
-
-  // Streak
   $('result-streak').textContent = GameState.streak > 0 ? `${GameState.streak} STREAK` : 'STREAK BROKEN';
 
   // Flaw reveal
   $('result-flaw-tag').textContent = evaluation.correctFlaw;
   $('result-flaw-desc').textContent = evaluation.explanation;
 
-  // Correct cues
+  // Correct cues list
   const cueList = $('result-correct-cues');
   cueList.innerHTML = '';
   const fw = FRAMEWORKS[GameState.currentDomain];
@@ -286,21 +313,46 @@ function renderResultPhase(evaluation, points, timedOut) {
     if (cue) {
       const li = document.createElement('div');
       li.className = 'result-cue-item';
-      li.innerHTML = `<span class="cue-id" style="color:${fw.color}">${cue.id}</span> ${cue.text}`;
+      li.innerHTML = `<span class="cue-id" style="color:#00A878">${cue.id}</span> ${cue.text}`;
       cueList.appendChild(li);
     }
   });
+
+  // Rank display
+  $('result-rank-name').textContent = currentRank.name;
+  $('result-rank-name').style.color = currentRank.color;
+  $('result-rank-title').textContent = currentRank.title;
+  $('result-rank-desc').textContent = currentRank.realWorld;
+
+  const progress = getRankProgress(GameState.xp);
+  $('result-rank-progress-fill').style.width = `${progress}%`;
+  $('result-rank-progress-fill').style.background = currentRank.color;
+
+  const next = getNextRank(GameState.xp);
+  $('result-next-rank').textContent = next
+    ? `${GameState.xp.toLocaleString()} / ${next.minXP.toLocaleString()} XP → ${next.name}`
+    : `${GameState.xp.toLocaleString()} XP — MAX RANK`;
+
+  // Rank-up banner
+  const rankUpEl = $('result-rankup');
+  if (rankUp) {
+    rankUpEl.style.display = 'block';
+    rankUpEl.textContent = `⬆ RANK UP — YOU ARE NOW ${currentRank.name}`;
+    rankUpEl.style.color = currentRank.color;
+  } else {
+    rankUpEl.style.display = 'none';
+  }
 
   // Session score
   $('result-session-score').textContent = GameState.sessionScore.toLocaleString();
   $('result-xp').textContent = `${GameState.xp.toLocaleString()} XP`;
 
-  updateHUDXP();
+  updateHUD();
 }
 
 // ── HUD ──────────────────────────────────────
 
-function updateHUDXP() {
+function updateHUD() {
   const rank = getRank(GameState.xp);
   $('hud-rank').textContent = rank.name;
   $('hud-rank').style.color = rank.color;
@@ -308,18 +360,13 @@ function updateHUDXP() {
   $('hud-streak').textContent = `×${GameState.streak}`;
 }
 
-// ── Button Handlers (called from HTML) ───────
+// ── Button Handlers ───────────────────────────
 
 function onStartGame() { showDomainSelect(); }
 
-function showHowToPlay() { setPhase('howto'); }
-
 function onPlayAgain() {
-  if (GameState.currentDomain) {
-    startRound(GameState.currentDomain);
-  } else {
-    showDomainSelect();
-  }
+  if (GameState.currentDomain) startRound(GameState.currentDomain);
+  else showDomainSelect();
 }
 
 function onChangeDomain() { showDomainSelect(); }

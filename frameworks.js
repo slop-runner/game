@@ -47,8 +47,8 @@ const FRAMEWORKS = {
     id: 'market',
     label: 'MARKET',
     fullName: 'Market Thinking',
-    color: '#00A878',
-    accent: '#00D49A',
+    color: '#0891B2',   // Teal-blue — distinct from correct green (#00A878)
+    accent: '#22D3EE',
     description: 'Does this fit the actual market conditions it needs to survive in?',
     cues: [
       { id: 'M-01', text: 'Market defined too broadly', flags: '"Everyone" cited — no real bounded target market' },
@@ -113,12 +113,138 @@ const FRAMEWORKS = {
 
 const FRAMEWORK_ORDER = ['design', 'business', 'market', 'user', 'project'];
 
+// ── Professional Rank Ladder ──────────────────
+// 15 ranks tied to real-world seniority archetypes.
+// XP thresholds are calibrated so early ranks come quickly
+// (encouraging new players) and senior ranks require sustained
+// correct, fast answers across multiple domains.
+//
+// The rank system answers: "Does your in-game behaviour
+// match how someone at this level actually thinks?"
+// Wrong answers, slow responses, and missed cues
+// all signal a gap between stated rank and real capability.
+
 const RANKS = [
-  { name: 'NOVICE', minXP: 0, color: '#8A9BB0' },
-  { name: 'ANALYST', minXP: 500, color: '#00A878' },
-  { name: 'STRATEGIST', minXP: 1500, color: '#1A6BFF' },
-  { name: 'DIRECTOR', minXP: 3500, color: '#9B5DE5' },
-  { name: 'PRINCIPAL', minXP: 7000, color: '#F4A124' }
+  {
+    name: 'INTERN',
+    minXP: 0,
+    color: '#8A9BB0',
+    title: 'Intern',
+    realWorld: 'Just starting out. Pattern recognition is forming. Needs guided frameworks to spot obvious flaws.',
+    badge: '○'
+  },
+  {
+    name: 'JUNIOR',
+    minXP: 300,
+    color: '#7EB8A4',
+    title: 'Junior',
+    realWorld: 'Knows the frameworks by name. Can spot textbook flaws but struggles with subtle, embedded ones.',
+    badge: '◐'
+  },
+  {
+    name: 'ASSOCIATE',
+    minXP: 800,
+    color: '#5BA08A',
+    title: 'Associate',
+    realWorld: 'Consistent with one or two domains. Developing cross-domain awareness. Speed still inconsistent.',
+    badge: '◑'
+  },
+  {
+    name: 'ANALYST',
+    minXP: 1800,
+    color: '#00A878',
+    title: 'Analyst',
+    realWorld: 'Can diagnose problems independently. Understands root causes, not just surface symptoms. Reliable in familiar domains.',
+    badge: '●'
+  },
+  {
+    name: 'CONSULTANT',
+    minXP: 3500,
+    color: '#0891B2',
+    title: 'Consultant',
+    realWorld: 'Multi-domain thinker. Brings frameworks to bear quickly and communicates diagnoses clearly. Trusted by peers.',
+    badge: '◆'
+  },
+  {
+    name: 'LEAD',
+    minXP: 6000,
+    color: '#1A6BFF',
+    title: 'Lead',
+    realWorld: 'Sets the standard for quality in a team. Spots flaws others miss. Fast and accurate under pressure.',
+    badge: '◈'
+  },
+  {
+    name: 'SENIOR',
+    minXP: 10000,
+    color: '#4D3FD1',
+    title: 'Senior',
+    realWorld: 'Deep domain mastery across multiple areas. Mentors others. Catches second-order flaws, not just first-order ones.',
+    badge: '★'
+  },
+  {
+    name: 'MANAGER',
+    minXP: 15000,
+    color: '#7C3AED',
+    title: 'Manager',
+    realWorld: 'Understands not just what the flaw is, but why teams make it. Systemic thinker. Sees process failures behind individual mistakes.',
+    badge: '★★'
+  },
+  {
+    name: 'DIRECTOR',
+    minXP: 22000,
+    color: '#9B5DE5',
+    title: 'Director',
+    realWorld: 'Strategic clarity under pressure. Diagnoses flaws in seconds. Knows which problems to fix and which to deprioritise.',
+    badge: '★★★'
+  },
+  {
+    name: 'PRINCIPAL',
+    minXP: 32000,
+    color: '#C026D3',
+    title: 'Principal',
+    realWorld: 'Rare cross-domain authority. Sees the intersection of design, business, market, user, and execution simultaneously.',
+    badge: '◉'
+  },
+  {
+    name: 'VP',
+    minXP: 45000,
+    color: '#E63B2E',
+    title: 'Vice President',
+    realWorld: 'Institutional-level thinking. Flaws are spotted not just in individual scenarios but in the patterns of organisational decision-making.',
+    badge: '◉◉'
+  },
+  {
+    name: 'PARTNER',
+    minXP: 62000,
+    color: '#DC2626',
+    title: 'Partner',
+    realWorld: 'Trusted advisor. The standard others are measured against. Rarely wrong. Even speed is a weapon.',
+    badge: '◉◉◉'
+  },
+  {
+    name: 'C-SUITE',
+    minXP: 85000,
+    color: '#F4A124',
+    title: 'C-Suite Executive',
+    realWorld: 'Operates at the intersection of all five frameworks simultaneously. Flaws that others need 60 seconds to spot, you see in seconds.',
+    badge: '⬡'
+  },
+  {
+    name: 'FOUNDER',
+    minXP: 115000,
+    color: '#D97706',
+    title: 'Founder',
+    realWorld: 'Built things. Broken things. Fixed things. Pattern recognition forged from real stakes, not just study.',
+    badge: '⬡⬡'
+  },
+  {
+    name: 'ORACLE',
+    minXP: 150000,
+    color: '#1A1A1A',
+    title: 'Oracle',
+    realWorld: 'The rarest rank. Reserved for those who have demonstrated mastery across all domains, sustained over hundreds of rounds, with speed and accuracy that cannot be faked.',
+    badge: '⬡⬡⬡'
+  }
 ];
 
 function getRank(xp) {
@@ -126,4 +252,20 @@ function getRank(xp) {
     if (xp >= RANKS[i].minXP) return RANKS[i];
   }
   return RANKS[0];
+}
+
+function getNextRank(xp) {
+  for (let i = 0; i < RANKS.length; i++) {
+    if (xp < RANKS[i].minXP) return RANKS[i];
+  }
+  return null; // At max rank
+}
+
+function getRankProgress(xp) {
+  const current = getRank(xp);
+  const next = getNextRank(xp);
+  if (!next) return 100;
+  const range = next.minXP - current.minXP;
+  const earned = xp - current.minXP;
+  return Math.round((earned / range) * 100);
 }
