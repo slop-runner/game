@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Slop Runner — Build expert intuition by auditing AI-generated scenarios under pressure." />
+  <title>SLOP RUNNER</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Favicon inline SVG -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231A1A1A'/><text x='4' y='24' font-size='22' font-family='monospace' fill='%23E63B2E'>S</text></svg>" />
+</head>
+<body>
+
+  <!-- ── HUD ──────────────────────────────────── -->
+  <header id="hud">
+    <div class="hud-left">
+      <div class="hud-logo">SLOP<span>RUNNER</span></div>
+      <div id="hud-rank">NOVICE</div>
+    </div>
+    <div class="hud-right">
+      <span id="hud-xp">0 XP</span>
+      <span id="hud-streak">×0</span>
+    </div>
+  </header>
+
+  <!-- ── APP ──────────────────────────────────── -->
+  <main id="app">
+
+    <!-- ── MENU PHASE ──────────────────────────── -->
+    <section class="phase active" id="phase-menu">
+      <p class="menu-eyebrow">EXPERTISE SIMULATOR · BUILD YOUR INTUITION</p>
+      <h1 class="menu-title">SLOP<br /><span>RUNNER</span></h1>
+      <p class="menu-subtitle">
+        AI generates flawed scenarios. You audit, diagnose, and clean them.
+        Speed and accuracy are both scored.
+      </p>
+      <div class="menu-stats">
+        <div>
+          <div class="menu-stat-label">RANK</div>
+          <div class="menu-stat-value" id="menu-rank">NOVICE</div>
+        </div>
+        <div>
+          <div class="menu-stat-label">TOTAL XP</div>
+          <div class="menu-stat-value" id="menu-xp">0</div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="onStartGame()">ENTER THE ARENA</button>
+      <p class="menu-hint">SELECT A DOMAIN · AUDIT THE SCENARIO · SUBMIT YOUR VERDICT</p>
+    </section>
+
+    <!-- ── DOMAIN SELECT PHASE ─────────────────── -->
+    <section class="phase" id="phase-domain">
+      <div class="domain-header">
+        <p class="domain-eyebrow">SELECT DOMAIN</p>
+        <h2 class="domain-title">CHOOSE YOUR BATTLEFIELD</h2>
+      </div>
+      <div id="domain-grid">
+        <!-- Populated by game.js -->
+      </div>
+      <button class="btn-back" onclick="onBackToMenu()">← BACK TO MENU</button>
+    </section>
+
+    <!-- ── LOADING PHASE ───────────────────────── -->
+    <section class="phase" id="phase-loading">
+      <p class="loading-label">GENERATING SCENARIO</p>
+      <div id="loading-domain">—</div>
+      <p class="loading-dots">· · ·</p>
+    </section>
+
+    <!-- ── PLAYING PHASE ───────────────────────── -->
+    <section class="phase" id="phase-playing">
+
+      <!-- Timer bar (top) -->
+      <div id="timer-bar">
+        <div id="timer-bar-fill"></div>
+      </div>
+
+      <!-- Play header -->
+      <div id="play-header">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span id="play-domain-badge">DOMAIN</span>
+          <span style="font-size:11px; letter-spacing:2px; color:var(--ink-muted);">IDENTIFY THE FLAW</span>
+        </div>
+        <div id="timer-display">:90</div>
+      </div>
+
+      <!-- Main body: scenario + toolkit -->
+      <div id="play-body">
+
+        <!-- Left: scenario + verdict -->
+        <div id="scenario-panel">
+          <p class="scenario-eyebrow">SCENARIO BRIEF</p>
+          <div id="scenario-text">Loading scenario...</div>
+          <div id="fallback-notice">⚡ OFFLINE MODE — using practice scenario</div>
+
+          <div id="verdict-area">
+            <p class="verdict-label">YOUR VERDICT — WHAT IS THE CORE FLAW?</p>
+            <textarea
+              id="verdict-input"
+              placeholder="State the flaw you identified and which principle exposes it..."
+              maxlength="400"
+            ></textarea>
+            <button id="submit-btn" onclick="submitVerdict()">SUBMIT VERDICT</button>
+          </div>
+        </div>
+
+        <!-- Right: injection deck + slop meter -->
+        <div id="toolkit-panel">
+          <div id="toolkit-header">
+            <p class="toolkit-eyebrow">INJECTION DECK</p>
+            <p class="toolkit-title">MENTAL CUES</p>
+          </div>
+          <div id="cue-deck">
+            <!-- Populated by game.js -->
+          </div>
+          <div id="slop-section">
+            <div class="slop-label">
+              <span>SLOP METER</span>
+              <span id="slop-value">100%</span>
+            </div>
+            <div id="slop-track">
+              <div id="slop-fill"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── RESULT PHASE ─────────────────────────── -->
+    <section class="phase" id="phase-result">
+
+      <div class="result-verdict" id="result-verdict">CLEANED</div>
+      <div class="result-points" id="result-points">+0</div>
+      <div class="result-meta">
+        <span id="result-slop">0% CLEANED</span>
+        <span id="result-streak">0 STREAK</span>
+      </div>
+
+      <hr class="result-divider" />
+
+      <p class="result-section-label">FLAW IDENTIFIED</p>
+      <div class="result-flaw-card">
+        <div id="result-flaw-tag">—</div>
+        <div id="result-flaw-desc">—</div>
+      </div>
+
+      <hr class="result-divider" />
+
+      <p class="result-section-label">CORRECT CUES FOR THIS SCENARIO</p>
+      <div id="result-correct-cues">
+        <!-- Populated by game.js -->
+      </div>
+
+      <hr class="result-divider" />
+
+      <p class="result-section-label">SESSION</p>
+      <div class="result-session">
+        <div>
+          <div class="result-session-label">SESSION SCORE</div>
+          <div class="result-session-val" id="result-session-score">0</div>
+        </div>
+        <div style="text-align:right;">
+          <div class="result-session-label">TOTAL XP</div>
+          <div class="result-session-val" id="result-xp">0</div>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn-action" onclick="onPlayAgain()">PLAY AGAIN</button>
+        <button class="btn-action secondary" onclick="onChangeDomain()">CHANGE DOMAIN</button>
+        <button class="btn-action secondary" onclick="onBackToMenu()">MENU</button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ── Scripts (order matters) ──────────────── -->
+  <script src="frameworks.js"></script>
+  <script src="scoring.js"></script>
+  <script src="engine.js"></script>
+  <script src="game.js"></script>
+
+</body>
+</html>
